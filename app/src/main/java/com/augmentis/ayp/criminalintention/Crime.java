@@ -8,22 +8,22 @@ import java.util.UUID;
  */
 public class Crime {
 
-    private UUID id;
+    private UUID uuid;
     private String title;
     private Date crimeDate;
     private boolean solved;
 
     public Crime(){
-        id = UUID.randomUUID();
+        uuid = UUID.randomUUID();
         crimeDate = new Date();
     }
 
     public UUID getId() {
-        return id;
+        return uuid;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setId(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public String getTitle() {
@@ -53,7 +53,7 @@ public class Crime {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("UUID=").append(id);
+        builder.append("UUID=").append(uuid);
         builder.append(", Title=").append(title);
         builder.append(", Crime Date=").append(crimeDate);
         builder.append(", Solved=").append(solved);
