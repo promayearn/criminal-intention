@@ -13,7 +13,7 @@ public class Crime {
     private Date crimeDate;
     private boolean solved;
 
-    public Crime(){
+    public Crime() {
         uuid = UUID.randomUUID();
         crimeDate = new Date();
     }
