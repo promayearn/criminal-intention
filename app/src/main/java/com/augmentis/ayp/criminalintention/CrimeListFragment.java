@@ -1,5 +1,7 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -25,13 +27,14 @@ import java.util.List;
  */
 public class CrimeListFragment extends Fragment {
 
+    private static final int REQUEST_UPDATE_CRIME = 1232;
+
     private RecyclerView crimeRecyclerView;
 
     private CrimeAdapter adapter;
+    private int crimePos;
 
     protected static final String TAG = "CrimeListFragment";
-
-    Crime _crime;
 
     @Nullable
     @Override
@@ -54,14 +57,35 @@ public class CrimeListFragment extends Fragment {
         CrimeLab crimeLab = CrimeLab.getInstance();
         List<Crime> crimes = crimeLab.getCrimes();
 
-        adapter = new CrimeAdapter(crimes);
-
-        crimeRecyclerView.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new CrimeAdapter(crimes);
+            crimeRecyclerView.setAdapter(adapter);
+        } else {
+            //adapter.notifyDataSetChanged();
+            adapter.notifyItemChanged(crimePos);
+        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultcode, Intent data) {
+        if (requestCode == REQUEST_UPDATE_CRIME) {
+            if (resultcode == Activity.RESULT_OK) {
+                crimePos = (int) data.getExtras().get("position");
+                Log.d(TAG, "GET crimePos = " + crimePos);
+            }
+            Log.d(TAG, "Return CrimeFragment");
+        }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -71,6 +95,7 @@ public class CrimeListFragment extends Fragment {
         public CheckBox solvedCheckBox;
 
         Crime _crime;
+        int _position;
 
         public CrimeHolder(View itemView) {
             super(itemView);
@@ -82,8 +107,9 @@ public class CrimeListFragment extends Fragment {
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Crime crime) {
+        public void bind(Crime crime, int position) {
             _crime = crime;
+            _position = position;
             titleTextView.setText(_crime.getTitle());
             dateTextView.setText(_crime.getCrimeDate().toString());
             solvedCheckBox.setChecked(_crime.isSolved());
@@ -91,8 +117,8 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = CrimeActivity.newIntent(getActivity(), _crime.getId());
-            startActivity(intent);
+            Intent intent = CrimeActivity.newIntent(getActivity(), _crime.getId(), _position);
+            startActivityForResult(intent, REQUEST_UPDATE_CRIME);
         }
     }
 
@@ -117,7 +143,7 @@ public class CrimeListFragment extends Fragment {
         public void onBindViewHolder(CrimeHolder holder, int position) {
             Log.d(TAG, "Bind View Holder for CrimeList : position = " + position);
             Crime crime = _crimes.get(position);
-            holder.bind(crime);
+            holder.bind(crime, position);
         }
 
         @Override

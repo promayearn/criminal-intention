@@ -1,5 +1,7 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CheckResult;
 import android.support.annotation.Nullable;
@@ -26,16 +28,19 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     private static final String CRIME_ID = "CrimeFragment.CRIME_ID";
+    private static final String CRIME_POSITION = "CrimeFragment.CRIME_POSITION";
 
     private Crime crime;
+    private int position;
 
     private EditText editText;
     private Button crimeDateButton;
     private CheckBox crimeSolvedCheckBox;
 
-    public static CrimeFragment newInstance(UUID crimeId) {
+    public static CrimeFragment newInstance(UUID crimeId, int position) {
         Bundle args = new Bundle();
         args.putSerializable(CRIME_ID, crimeId);
+        args.putInt(CRIME_POSITION, position);
 
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
@@ -45,8 +50,8 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         UUID crimeId = (UUID) getArguments().getSerializable(CRIME_ID);
+        position = getArguments().getInt(CRIME_POSITION);
         crime = CrimeLab.getInstance().getCrimeById(crimeId);
         Log.d(CrimeListFragment.TAG, "crime.getTitle() = " + crime.getTitle());
     }
@@ -65,7 +70,7 @@ public class CrimeFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                crime.setTitle(toString().toString());
+                crime.setTitle(charSequence.toString());
 
             }
 
@@ -91,6 +96,14 @@ public class CrimeFragment extends Fragment {
                 Log.d(CrimeActivity.TAG, "Crime :" + crime.toString());
             }
         });
+
+        Intent intent = new Intent();
+        intent.putExtra("position", position);
+        getActivity().setResult(Activity.RESULT_OK, intent);
         return v;
+    }
+
+    private String getFormattedDate(Date date){
+        return new SimpleDateFormat("dd MMMM yyyy").format(date);
     }
 }

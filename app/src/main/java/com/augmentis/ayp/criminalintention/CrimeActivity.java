@@ -9,17 +9,20 @@ import java.util.UUID;
 public class CrimeActivity extends SingleFragmentActivity {
 
     protected static final String CRIME_ID = "crimeActivity.crimeId";
+    protected static final String CRIME_POSITION = "crimeActivity.crimePosition";
 
-    public static Intent newIntent(Context context, UUID id) {
+    public static Intent newIntent(Context context, UUID id, int _position) {
         Intent intent = new Intent(context, CrimeActivity.class);
         intent.putExtra(CRIME_ID, id);
+        intent.putExtra(CRIME_POSITION, _position);
         return intent;
     }
 
     @Override
     protected Fragment onCreateFragment() {
-        UUID crimdId = (UUID)getIntent().getSerializableExtra(CRIME_ID);
-        Fragment fragment = CrimeFragment.newInstance(crimdId);
+        UUID crimeId = (UUID)getIntent().getSerializableExtra(CRIME_ID);
+        int position = (int) getIntent().getExtras().get(CRIME_POSITION);
+        Fragment fragment = CrimeFragment.newInstance(crimeId, position);
         return fragment;
     }
 }
