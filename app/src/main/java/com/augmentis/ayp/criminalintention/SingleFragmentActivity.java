@@ -18,15 +18,15 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
         FragmentManager fm = getSupportFragmentManager();
         Fragment f = fm.findFragmentById(R.id.fragment_container);
 
-        if(f == null) {
+        if (f == null) {
             f = onCreateFragment();
 
             fm.beginTransaction()
                     .add(R.id.fragment_container, f)
                     .commit();
-            Log.d(TAG, "Fragment is created");
+            Log.d(CrimeListFragment.TAG, "Fragment is created");
         } else {
-            Log.d(TAG, "Fragment didnt create");
+            Log.d(CrimeListFragment.TAG, "Fragment didnt create");
         }
     }
 

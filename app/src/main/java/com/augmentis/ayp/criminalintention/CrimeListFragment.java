@@ -1,6 +1,7 @@
 package com.augmentis.ayp.criminalintention;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -27,7 +29,9 @@ public class CrimeListFragment extends Fragment {
 
     private CrimeAdapter adapter;
 
-    private static final String TAG = "CrimeListFragment";
+    protected static final String TAG = "CrimeListFragment";
+
+    Crime _crime;
 
     @Nullable
     @Override
@@ -60,11 +64,13 @@ public class CrimeListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView titleTextView;
         public TextView dateTextView;
         public CheckBox solvedCheckBox;
+
+        Crime _crime;
 
         public CrimeHolder(View itemView) {
             super(itemView);
@@ -73,13 +79,20 @@ public class CrimeListFragment extends Fragment {
             dateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
             solvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
 
-            itemView.setOnClickListener();
+            itemView.setOnClickListener(this);
         }
 
         public void bind(Crime crime) {
-            titleTextView.setText(crime.getTitle());
-            dateTextView.setText(crime.getCrimeDate().toString());
-            solvedCheckBox.setChecked(crime.isSolved());
+            _crime = crime;
+            titleTextView.setText(_crime.getTitle());
+            dateTextView.setText(_crime.getCrimeDate().toString());
+            solvedCheckBox.setChecked(_crime.isSolved());
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = CrimeActivity.newIntent(getActivity(), _crime.getId());
+            startActivity(intent);
         }
     }
 
