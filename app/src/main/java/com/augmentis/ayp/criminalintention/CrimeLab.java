@@ -40,13 +40,13 @@ public class CrimeLab {
         return null;
     }
 
-    public List<Crime> getCrime() {
+    public List<Crime> getCrimes() {
         return this.crimeList;
     }
 
     public static void main(String[] args) {
         CrimeLab crimeLab = CrimeLab.getInstance();
-        List<Crime> crimeList = crimeLab.getCrime();
+        List<Crime> crimeList = crimeLab.getCrimes();
         int size = crimeList.size();
         for (int i = 0; i < size; i++) {
             System.out.println(crimeList.get(i));
