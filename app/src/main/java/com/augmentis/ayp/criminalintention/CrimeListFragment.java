@@ -1,14 +1,9 @@
 package com.augmentis.ayp.criminalintention;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,27 +19,22 @@ import java.util.List;
  * Created by Chayanit on 7/18/2016.
  */
 public class CrimeListFragment extends Fragment {
+    private static final int REQUEST_UPDATE_CRIME = 100;
+    private RecyclerView _crimeRecycleView;
+    private CrimeAdapter _adapter;
 
-    private static final int REQUEST_UPDATE_CRIME = 1232;
-
-    private RecyclerView crimeRecyclerView;
-
-    private CrimeAdapter adapter;
-    private int crimePos;
-
-    protected static final String TAG = "CrimeListFragment";
+    protected static final String TAG = "CRIME_LIST";
+    private Integer[] crimePos;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
-        crimeRecyclerView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
-        crimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        crimeRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
+        _crimeRecycleView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
+        _crimeRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
-
         return v;
     }
 
@@ -54,40 +44,37 @@ public class CrimeListFragment extends Fragment {
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
-
-        if (adapter == null) {
-            adapter = new CrimeAdapter(crimes);
-            crimeRecyclerView.setAdapter(adapter);
+        if (_adapter == null) {
+            _adapter = new CrimeAdapter(crimes);
+            _crimeRecycleView.setAdapter(_adapter);
         } else {
-            //adapter.notifyDataSetChanged();
-            adapter.notifyDataSetChanged();
+            // _adapter.notifyDataSetChanged();
+            if (crimePos != null) {
+                for (int pos : crimePos) {
+                    _adapter.notifyItemChanged(pos);
+                }
+            }
         }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "Resume list");
         updateUI();
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultcode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_UPDATE_CRIME) {
-            if (resultcode == Activity.RESULT_OK) { 
-                crimePos = (int) data.getExtras().get("position");
-                Log.d(TAG, "GET crimePos = " + crimePos);
-            }
-            Log.d(TAG, "Return CrimeFragment");
+            crimePos = (Integer[]) data.getExtras().get("position");
+            Log.d(TAG, "get crimePos =" + crimePos);
+
+            Log.d(TAG, "Return form crime fragment");
         }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         public TextView titleTextView;
         public TextView dateTextView;
         public CheckBox solvedCheckBox;
@@ -109,71 +96,55 @@ public class CrimeListFragment extends Fragment {
             _crime = crime;
             _position = position;
             titleTextView.setText(_crime.getTitle());
-            dateTextView.setText(_crime.getCrimeDate().toString());
             solvedCheckBox.setChecked(_crime.isSolved());
+            dateTextView.setText(_crime.getCrimeDate().toString());
         }
 
         @Override
-        public void onClick(View view) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId(), _position);
+        public void onClick(View v) {
+            Intent intent = CrimePagerActivity.newIntend(getActivity(), _crime.getId(), _position);
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);
+            /*Toast.makeText(getActivity(), "Press!" + titleTextView.getText(),
+                    Toast.LENGTH_SHORT)
+                    .show();*/
         }
     }
 
-    private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-        private List<Crime> _crimes;
+    private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
+        private List<Crime> crimes;
+        private int _viewCreatingCount;
 
         public CrimeAdapter(List<Crime> crimes) {
-            _crimes = crimes;
+            this.crimes = crimes;
         }
 
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.d(TAG, "Create View Holder for CrimeList");
+            _viewCreatingCount++;
+            Log.d(TAG, "Create view holder for CrimeList: creating view time = " + _viewCreatingCount);
+
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
             View v = layoutInflater.inflate(R.layout.list_item_crime, parent, false);
-
             return new CrimeHolder(v);
         }
 
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
-            Log.d(TAG, "Bind View Holder for CrimeList : position = " + position);
-            Crime crime = _crimes.get(position);
+            Log.d(TAG, "Bind view holder for crimList : position = " + position);
+
+            Crime crime = crimes.get(position);
             holder.bind(crime, position);
         }
 
         @Override
         public int getItemCount() {
-            return _crimes.size();
+            return crimes.size();
         }
     }
 
-    public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
-        private Drawable mDivider;
-
-        public SimpleDividerItemDecoration(Context context) {
-            mDivider = ContextCompat.getDrawable(context, R.drawable.line_divider);
-        }
-
-        @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            int left = parent.getPaddingLeft();
-            int right = parent.getWidth() - parent.getPaddingRight();
-
-            int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View child = parent.getChildAt(i);
-
-                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-
-                int top = child.getBottom() + params.bottomMargin;
-                int bottom = top + mDivider.getIntrinsicHeight();
-
-                mDivider.setBounds(left, top, right, bottom);
-                mDivider.draw(c);
-            }
-        }
-    }
 }
