@@ -49,6 +49,10 @@ public class CrimePagerActivity extends FragmentActivity {
                 return _crimes.size();
             }
         });
+
+        //set position
+        int position = CrimeLab.getInstance(this).getCrimePositionById(_crimeId);
+        _viewPager.setCurrentItem(position);
     }
 
     public static Intent newIntent(Context context, UUID id, int position) {

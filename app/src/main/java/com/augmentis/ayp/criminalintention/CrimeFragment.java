@@ -92,7 +92,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 crime.setSolved(isChecked);
-                Log.d(CrimeActivity.TAG, "Crime :" + crime.toString());
             }
         });
 
