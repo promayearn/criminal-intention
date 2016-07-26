@@ -1,5 +1,7 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +14,7 @@ public class CrimeLab {
 
     private static CrimeLab instance;
 
-    public static CrimeLab getInstance() {
+    public static CrimeLab getInstance(Context context) {
         if (instance == null) {
             instance = new CrimeLab();
         }
@@ -45,14 +47,12 @@ public class CrimeLab {
     }
 
     public static void main(String[] args) {
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(null);
         List<Crime> crimeList = crimeLab.getCrimes();
         int size = crimeList.size();
         for (int i = 0; i < size; i++) {
             System.out.println(crimeList.get(i));
         }
         System.out.println(crimeLab.toString());
-
-        System.out.println(crimeLab.getInstance());
     }
 }

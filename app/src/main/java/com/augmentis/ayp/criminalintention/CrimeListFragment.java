@@ -1,7 +1,6 @@
 package com.augmentis.ayp.criminalintention;
 
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -54,7 +52,7 @@ public class CrimeListFragment extends Fragment {
      * Update UI
      */
     private void updateUI() {
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
         if (adapter == null) {
@@ -80,7 +78,7 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultcode, Intent data) {
         if (requestCode == REQUEST_UPDATE_CRIME) {
-            if (resultcode == Activity.RESULT_OK) {
+            if (resultcode == Activity.RESULT_OK) { 
                 crimePos = (int) data.getExtras().get("position");
                 Log.d(TAG, "GET crimePos = " + crimePos);
             }
@@ -117,7 +115,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = CrimeActivity.newIntent(getActivity(), _crime.getId(), _position);
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId(), _position);
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);
         }
     }
