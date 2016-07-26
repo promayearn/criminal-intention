@@ -60,7 +60,7 @@ public class CrimeListFragment extends Fragment {
             crimeRecyclerView.setAdapter(adapter);
         } else {
             //adapter.notifyDataSetChanged();
-            adapter.notifyItemChanged(crimePos);
+            adapter.notifyDataSetChanged();
         }
     }
 
