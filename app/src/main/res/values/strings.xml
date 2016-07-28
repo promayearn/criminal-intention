@@ -4,4 +4,6 @@
     <string name="crime_title_label">Thtle</string>
     <string name="crime_solved_label">Solved</string>
     <string name="crime_detail_label">Details</string>
+    <string name="date_picker_title">Pick Date</string>
+    <string name="time_picker_title">Time Picker</string>
 </resources>
