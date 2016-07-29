@@ -1,5 +1,6 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -67,7 +68,6 @@ public class CrimeListFragment extends Fragment {
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
                 Intent intent = CrimePagerActivity.newIntend(getActivity(), crime.getId());
                 startActivity(intent);
-
                 return true;
 
             case R.id.menu_item_show_subtitle:
@@ -124,15 +124,16 @@ public class CrimeListFragment extends Fragment {
     }
 
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_UPDATE_CRIME) {
-            crimePos = (Integer[]) data.getExtras().get("position");
-            Log.d(TAG, "get crimePos =" + crimePos);
-
-            Log.d(TAG, "Return form crime fragment");
-        }
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == REQUEST_UPDATE_CRIME) {
+//            if (resultCode == Activity.RESULT_OK) {
+//                crimePos = (Integer[]) data.getExtras().get("position");
+//                Log.d(TAG, "get crimePos =" + crimePos);
+//            }
+//            Log.d(TAG, "Return form crime fragment");
+//        }
+//    }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView titleTextView;
@@ -155,9 +156,11 @@ public class CrimeListFragment extends Fragment {
         public void bind(Crime crime, int position) {
             _crime = crime;
             _position = position;
-            titleTextView.setText(_crime.getTitle());
-            solvedCheckBox.setChecked(_crime.isSolved());
-            dateTextView.setText(_crime.getCrimeDate().toString());
+            if(crime.getId() != null){
+                    titleTextView.setText(_crime.getTitle());
+                    solvedCheckBox.setChecked(_crime.isSolved());
+                    dateTextView.setText(_crime.getCrimeDate().toString());
+                }
         }
 
         @Override

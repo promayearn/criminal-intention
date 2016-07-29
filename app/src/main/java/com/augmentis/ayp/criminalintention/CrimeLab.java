@@ -1,6 +1,7 @@
 package com.augmentis.ayp.criminalintention;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.UUID;
  * Created by Chayanit on 7/18/2016.
  */
 public class CrimeLab {
+
+    private static final String TAG = "CrimeLab";
     List<Crime> crimeList;
 
     private static CrimeLab instance;
@@ -60,5 +63,15 @@ public class CrimeLab {
 
     public void addCrime(Crime crime) {
         crimeList.add(crime);
+    }
+
+    public void deleteCrime(Crime crime) {
+        for (int i = 0; i < crimeList.size(); i++) {
+            if (crimeList.get(i).getId().equals(crime.getId())) {
+                Log.d(TAG, "Crime Delete " + crimeList.get(i).getTitle());
+                crimeList.remove(i);
+                break;
+            }
+        }
     }
 }
