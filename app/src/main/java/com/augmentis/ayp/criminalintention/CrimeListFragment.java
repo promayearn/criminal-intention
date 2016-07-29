@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -19,6 +22,37 @@ import java.util.List;
  * Created by Chayanit on 7/18/2016.
  */
 public class CrimeListFragment extends Fragment {
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.crime_list_menu, menu);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_new_crime:
+
+                Crime crime = new Crime();
+                CrimeLab.getInstance(getActivity()).addCrime(crime);
+                Intent intent = CrimePagerActivity.newIntend(getActivity(), crime.getId(), -1);
+                startActivity(intent);
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private static final int REQUEST_UPDATE_CRIME = 100;
     private RecyclerView _crimeRecycleView;
     private CrimeAdapter _adapter;
@@ -48,12 +82,12 @@ public class CrimeListFragment extends Fragment {
             _adapter = new CrimeAdapter(crimes);
             _crimeRecycleView.setAdapter(_adapter);
         } else {
-            // _adapter.notifyDataSetChanged();
-            if (crimePos != null) {
-                for (int pos : crimePos) {
-                    _adapter.notifyItemChanged(pos);
-                }
-            }
+            _adapter.notifyDataSetChanged();
+//            if (crimePos != null) {
+//                for (int pos : crimePos) {
+//                    _adapter.notifyItemChanged(pos);
+//                }
+//            }
         }
     }
 
@@ -63,7 +97,6 @@ public class CrimeListFragment extends Fragment {
         Log.d(TAG, "Resume list");
         updateUI();
     }
-
 
 
     @Override
@@ -110,11 +143,6 @@ public class CrimeListFragment extends Fragment {
                     Toast.LENGTH_SHORT)
                     .show();*/
         }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
