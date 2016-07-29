@@ -27,7 +27,6 @@ public class CrimeFragment extends Fragment {
     private static final String CRIME_ID = "CrimeFragment.CRIME_ID";
     private static final String CRIME_POSITION = "CrimeFragment.CRIME_Position";
     private static final String DIALOG_DATE = "CrimeFragment.DIALOG_DATE";
-    private static final String DIALOG_TIME = "CrimeFragment.TIME_DATE";
     private static final int REQUEST_DATE = 23340;
     private static final int REQUEST_TIME = 12345;
     private Crime crime;
@@ -35,16 +34,13 @@ public class CrimeFragment extends Fragment {
     private Button crimeDateButton;
     private Button crimeTimeButton;
     private CheckBox crimeSolvedCheckbox;
-    private int position;
 
     public CrimeFragment() {
     }
 
-    public static CrimeFragment newInstance(UUID crimeID, int position) {
+    public static CrimeFragment newInstance(UUID crimeID) {
         Bundle args = new Bundle();
         args.putSerializable(CRIME_ID, crimeID);
-        args.putInt(CRIME_POSITION, position);
-
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
@@ -55,7 +51,6 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
-        position = getArguments().getInt(CRIME_POSITION);
         crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
         Log.d(CrimeListFragment.TAG, "crime.getID()=" + crime.getId());
         Log.d(CrimeListFragment.TAG, "crime.getTitle()=" + crime.getTitle());
@@ -76,7 +71,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 crime.setTitle(s.toString());
-                addThisPositionToResult(position);
             }
 
             @Override
@@ -117,13 +111,10 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
-                addThisPositionToResult(position);
                 Log.d(CrimeListFragment.TAG, "Crime:" + crime.toString());
             }
         });
         Intent intent = new Intent();
-        intent.putExtra("position", position);
-        Log.d(CrimeListFragment.TAG, "send position back: " + position);
         getActivity().setResult(Activity.RESULT_OK, intent);
         return v;
     }
@@ -135,12 +126,6 @@ public class CrimeFragment extends Fragment {
 
     private String getFormattedDate(Date date) {
         return new SimpleDateFormat("dd MMMM yyyy").format(date);
-    }
-
-    private void addThisPositionToResult(int position) {
-        if (getActivity() instanceof CrimePagerActivity) {
-            ((CrimePagerActivity) getActivity()).addPageUpdate(position);
-        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,11 +24,31 @@ import java.util.List;
  */
 public class CrimeListFragment extends Fragment {
 
+
+    private static final int REQUEST_UPDATE_CRIME = 100;
+    private static final java.lang.String SUBTITLE_VISIBLE_STATE = "SUBTITLE_VISIBLE_STATE";
+    private RecyclerView _crimeRecycleView;
+    private CrimeAdapter _adapter;
+
+    protected static final String TAG = "CRIME_LIST";
+    private Integer[] crimePos;
+
+    private boolean _subtitle;
+    private boolean _subtitleVisible;
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
         inflater.inflate(R.menu.crime_list_menu, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.menu_item_show_subtitle);
+
+        if (_subtitle) {
+            menuItem.setTitle(R.string.hide_subtitle);
+        } else {
+            menuItem.setTitle(R.string.show_subtitle);
+        }
     }
 
     @Override
@@ -44,21 +65,20 @@ public class CrimeListFragment extends Fragment {
 
                 Crime crime = new Crime();
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntend(getActivity(), crime.getId(), -1);
+                Intent intent = CrimePagerActivity.newIntend(getActivity(), crime.getId());
                 startActivity(intent);
 
+                return true;
+
+            case R.id.menu_item_show_subtitle:
+                _subtitleVisible = !_subtitleVisible;
+                getActivity().invalidateOptionsMenu();
+                updateSubtitle();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    private static final int REQUEST_UPDATE_CRIME = 100;
-    private RecyclerView _crimeRecycleView;
-    private CrimeAdapter _adapter;
-
-    protected static final String TAG = "CRIME_LIST";
-    private Integer[] crimePos;
 
     @Nullable
     @Override
@@ -67,6 +87,10 @@ public class CrimeListFragment extends Fragment {
 
         _crimeRecycleView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
         _crimeRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if (savedInstanceState != null) {
+            _subtitleVisible = savedInstanceState.getBoolean(SUBTITLE_VISIBLE_STATE);
+        }
 
         updateUI();
         return v;
@@ -89,6 +113,7 @@ public class CrimeListFragment extends Fragment {
 //                }
 //            }
         }
+        updateSubtitle();
     }
 
     @Override
@@ -137,7 +162,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimePagerActivity.newIntend(getActivity(), _crime.getId(), _position);
+            Intent intent = CrimePagerActivity.newIntend(getActivity(), _crime.getId());
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);
             /*Toast.makeText(getActivity(), "Press!" + titleTextView.getText(),
                     Toast.LENGTH_SHORT)
@@ -177,4 +202,24 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
+    public void updateSubtitle() {
+
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subtitle = getString(R.string.subtitle_format, crimeCount);
+
+        if (!_subtitleVisible) {
+            subtitle = null;
+        }
+
+        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setSubtitle(subtitle);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SUBTITLE_VISIBLE_STATE, _subtitleVisible);
+    }
 }
