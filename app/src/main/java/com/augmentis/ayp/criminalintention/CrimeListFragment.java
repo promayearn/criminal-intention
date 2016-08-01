@@ -1,6 +1,5 @@
 package com.augmentis.ayp.criminalintention;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -102,16 +102,13 @@ public class CrimeListFragment extends Fragment {
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
+
         if (_adapter == null) {
             _adapter = new CrimeAdapter(crimes);
             _crimeRecycleView.setAdapter(_adapter);
         } else {
+            _adapter.setCrimes(crimeLab.getCrimes());
             _adapter.notifyDataSetChanged();
-//            if (crimePos != null) {
-//                for (int pos : crimePos) {
-//                    _adapter.notifyItemChanged(pos);
-//                }
-//            }
         }
         updateSubtitle();
     }
@@ -122,18 +119,6 @@ public class CrimeListFragment extends Fragment {
         Log.d(TAG, "Resume list");
         updateUI();
     }
-
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == REQUEST_UPDATE_CRIME) {
-//            if (resultCode == Activity.RESULT_OK) {
-//                crimePos = (Integer[]) data.getExtras().get("position");
-//                Log.d(TAG, "get crimePos =" + crimePos);
-//            }
-//            Log.d(TAG, "Return form crime fragment");
-//        }
-//    }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView titleTextView;
@@ -150,26 +135,32 @@ public class CrimeListFragment extends Fragment {
             dateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
             solvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
 
+            solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    solvedCheckBox.setChecked(b);
+                    _crime.setSolved(b);
+                    CrimeLab.getInstance(getActivity()).updateCrime(_crime);
+                }
+            });
+
             itemView.setOnClickListener(this);
         }
 
         public void bind(Crime crime, int position) {
             _crime = crime;
             _position = position;
-            if(crime.getId() != null){
-                    titleTextView.setText(_crime.getTitle());
-                    solvedCheckBox.setChecked(_crime.isSolved());
-                    dateTextView.setText(_crime.getCrimeDate().toString());
-                }
+            if (crime.getId() != null) {
+                titleTextView.setText(_crime.getTitle());
+                solvedCheckBox.setChecked(_crime.isSolved());
+                dateTextView.setText(_crime.getCrimeDate().toString());
+            }
         }
 
         @Override
         public void onClick(View v) {
             Intent intent = CrimePagerActivity.newIntend(getActivity(), _crime.getId());
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);
-            /*Toast.makeText(getActivity(), "Press!" + titleTextView.getText(),
-                    Toast.LENGTH_SHORT)
-                    .show();*/
         }
     }
 
@@ -202,6 +193,10 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return crimes.size();
+        }
+
+        protected void setCrimes(List<Crime> crime) {
+            this.crimes = crime;
         }
     }
 

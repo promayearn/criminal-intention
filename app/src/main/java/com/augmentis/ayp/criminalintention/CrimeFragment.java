@@ -9,6 +9,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,9 +36,7 @@ public class CrimeFragment extends Fragment {
     private EditText editText;
     private Button crimeDateButton;
     private Button crimeTimeButton;
-    private Button crimeDeleteButton;
     private CheckBox crimeSolvedCheckbox;
-    private boolean b = false;
 
     public CrimeFragment() {
     }
@@ -51,11 +52,32 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
         crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
-        Log.d(CrimeListFragment.TAG, "crime.getID()=" + crime.getId());
-        Log.d(CrimeListFragment.TAG, "crime.getTitle()=" + crime.getTitle());
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.crime_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_crime:
+
+                CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
+                getActivity().finish();
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -107,17 +129,6 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        crimeDeleteButton = (Button) v.findViewById(R.id.crime_delete);
-        crimeDeleteButton.setText("Delete This Crime");
-        crimeDeleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
-                crimeLab.deleteCrime(crime);
-            }
-        });
-
         crimeSolvedCheckbox = (CheckBox) v.findViewById(R.id.crime_solved);
         crimeSolvedCheckbox.setChecked(crime.isSolved());
         crimeSolvedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -159,5 +170,12 @@ public class CrimeFragment extends Fragment {
             crime.setCrimeDate(date);
             crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        CrimeLab.getInstance(getActivity()).updateCrime(crime);
     }
 }
