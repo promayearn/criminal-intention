@@ -32,7 +32,6 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter _adapter;
 
     protected static final String TAG = "CRIME_LIST";
-    private Integer[] crimePos;
 
     private boolean _subtitle;
     private boolean _subtitleVisible;
