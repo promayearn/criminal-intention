@@ -10,4 +10,6 @@
     <string name="show_subtitle">Show Subtitle</string>
     <string name="subtitle_format">%d Crime(s)</string>
     <string name="hide_subtitle">Hide Subtitle</string>
+    <string name="choose_suspect">Choose Suspect</string>
+    <string name="crime_report">Crime Report</string>
 </resources>
