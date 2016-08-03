@@ -5,6 +5,6 @@
     <item
         android:id="@+id/menu_item_delete_crime"
         android:icon="@android:drawable/ic_input_delete"
-        android:title="@string/new_crime"
-        app:showAsAction="ifRoom|withText" />
+        android:title="@string/delete_crime"
+        app:showAsAction="always" />
 </menu>

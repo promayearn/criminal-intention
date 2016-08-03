@@ -1,4 +1,4 @@
-package com.augmentis.ayp.criminalintention;
+package com.augmentis.ayp.criminalintention.model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.augmentis.ayp.criminalintention.CrimeDbSchema.CrimeTable;
+import com.augmentis.ayp.criminalintention.model.CrimeDbSchema.CrimeTable;
 
 import java.util.ArrayList;
 import java.util.List;

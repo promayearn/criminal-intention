@@ -1,42 +1,25 @@
-package com.augmentis.ayp.criminalintention;
+package com.augmentis.ayp.criminalintention.model;
 
 import java.util.Date;
 import java.util.UUID;
 
 /**
- * Created by Chayanit on 7/18/2016.
+ * Created by Chayanit on 18-Jul-16.
  */
 public class Crime {
-
-    private UUID uuid;
+    private UUID id;
     private String title;
     private Date crimeDate;
     private boolean solved;
     private String suspect;
-
-    public String getSuspect() {
-        return suspect;
-    }
-
-    public void setSuspect(String suspect) {
-        this.suspect = suspect;
-    }
 
     public Crime() {
         this(UUID.randomUUID());
     }
 
     public Crime(UUID uuid) {
-        this.uuid = uuid;
+        this.id = uuid;
         crimeDate = new Date();
-    }
-
-    public UUID getId() {
-        return uuid;
-    }
-
-    public void setId(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getTitle() {
@@ -45,6 +28,15 @@ public class Crime {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public UUID getId() {
+
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Date getCrimeDate() {
@@ -63,14 +55,22 @@ public class Crime {
         this.solved = solved;
     }
 
+    public String getSuspect() {
+        return suspect;
+    }
+
+    public void setSuspect(String suspect) {
+        this.suspect = suspect;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("UUID=").append(uuid);
-        builder.append(", Title=").append(title);
-        builder.append(", Crime Date=").append(crimeDate);
-        builder.append(", Solved=").append(solved);
-        builder.append(", Suspect=").append(suspect);
+        builder.append("UUID=").append(id);
+        builder.append(",Title=").append(title);
+        builder.append(",Crime Date=").append(crimeDate);
+        builder.append(",Solved=").append(solved);
+        builder.append(",Suspect=").append(suspect);
         return builder.toString();
     }
 }

@@ -1,8 +1,10 @@
 package com.augmentis.ayp.criminalintention;
 
+import com.augmentis.ayp.criminalintention.model.Crime;
+import com.augmentis.ayp.criminalintention.model.CrimeLab;
+
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.UUID;
 

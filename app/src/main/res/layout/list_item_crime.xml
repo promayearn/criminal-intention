@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="?android:listSeparatorTextViewStyle"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingBottom="4dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:paddingTop="4dp">
 
     <CheckBox
         android:id="@+id/list_item_crime_solved_check_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:padding="4dp" />
 
     <TextView
         android:id="@+id/list_item_crime_title_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/list_item_crime_solved_check_box"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="30dp"
+        android:layout_toLeftOf="@id/list_item_crime_solved_check_box"
         android:padding="4dp"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         tools:text="Crime title" />
 
@@ -27,13 +30,9 @@
         android:id="@+id/list_item_crime_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/list_item_crime_title_text_view"
+        android:layout_below="@id/list_item_crime_title_text_view"
+        android:layout_toLeftOf="@id/list_item_crime_solved_check_box"
         android:padding="4dp"
         tools:text="Crime date" />
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="1dp"
-        android:layout_below="@id/list_item_crime_date_text_view"
-        android:background="@color/black" />
 </RelativeLayout>

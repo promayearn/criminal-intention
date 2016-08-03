@@ -1,15 +1,19 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,36 +25,50 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import com.augmentis.ayp.criminalintention.model.Crime;
+import com.augmentis.ayp.criminalintention.model.CrimeDateFormat;
+import com.augmentis.ayp.criminalintention.model.CrimeLab;
+
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 /**
- * Created by Chayanit on 7/18/2016.
+ * Created by Chayanit on 18-Jul-16.
  */
 public class CrimeFragment extends Fragment {
+
     private static final String CRIME_ID = "CrimeFragment.CRIME_ID";
-    private static final String CRIME_POSITION = "CrimeFragment.CRIME_Position";
+
     private static final String DIALOG_DATE = "CrimeFragment.DIALOG_DATE";
-    private static final int REQUEST_DATE = 23340;
-    private static final int REQUEST_TIME = 12345;
-    private static final int REQUEST_CONTACT_SUSPECT = 23341;
+    private static final String DIALOG_TIME = "CrimeFragment.DIALOG_DATE";
+
+    private static final int REQUEST_DATE = 2222;
+    private static final int REQUEST_TIME = 2221;
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 28197;
+    private static final int REQUEST_CONTACT_SUSPECT = 29900;
+
+    private static final String TAG = "CrimeFragment";
+
     private Crime crime;
+
     private EditText editText;
     private Button crimeDateButton;
     private Button crimeTimeButton;
     private CheckBox crimeSolvedCheckbox;
     private Button crimeReportButton;
     private Button crimeSuspectButton;
+    private Button crimeCallSuspect;
 
     public CrimeFragment() {
     }
 
-    public static CrimeFragment newInstance(UUID crimeID) {
+    public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
-        args.putSerializable(CRIME_ID, crimeID);
+        args.putSerializable(CRIME_ID, crimeId);
+
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
@@ -59,32 +77,15 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
-        crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
 
         setHasOptionsMenu(true);
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
 
-        inflater.inflate(R.menu.crime_menu, menu);
-    }
+        UUID crimeId = (UUID) getArguments().getSerializable(CRIME_ID);
+        crime = crimeLab.getCrimeById(crimeId);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_delete_crime:
-
-                CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
-                getActivity().finish();
-
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        Log.d(TAG, "crime.getTitle()=" + crime.getTitle());
     }
 
     @Override
@@ -110,29 +111,34 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        crimeTimeButton = (Button) v.findViewById(R.id.crime_time);
-        crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
-        crimeTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        crimeDateButton = (Button) v.findViewById(R.id.crime_date);
+        crimeDateButton.setText(CrimeDateFormat.toShortDate(crime.getCrimeDate()));
+        crimeDateButton.setOnClickListener(new View.OnClickListener() {
 
+            @Override
+            public void onClick(View v) {
+
+                ///
                 FragmentManager fm = getFragmentManager();
-                TimePickerFragment dialogFragment = TimePickerFragment.newInstance(crime.getCrimeDate());
-                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                DatePickerFragment dialogFragment =
+                        DatePickerFragment.newInstance(crime.getCrimeDate());
+                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialogFragment.show(fm, DIALOG_DATE);
             }
         });
 
-        crimeDateButton = (Button) v.findViewById(R.id.crime_date);
-        crimeDateButton.setText(getFormattedDate(crime.getCrimeDate()));
-        crimeDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        crimeTimeButton = (Button) v.findViewById(R.id.crime_time);
+        crimeTimeButton.setText(CrimeDateFormat.toTime(getActivity(), crime.getCrimeDate()));
+        crimeTimeButton.setOnClickListener(new View.OnClickListener() {
 
+            @Override
+            public void onClick(View v) {
+                ///
                 FragmentManager fm = getFragmentManager();
-                DatePickerFragment dialogFragment = DatePickerFragment.newInstance(crime.getCrimeDate());
-                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
-                dialogFragment.show(fm, DIALOG_DATE);
+                TimePickerFragment dialogFragment =
+                        TimePickerFragment.newInstance(crime.getCrimeDate());
+                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                dialogFragment.show(fm, DIALOG_TIME);
             }
         });
 
@@ -142,16 +148,16 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
-                Log.d(CrimeListFragment.TAG, "Crime:" + crime.toString());
+                Log.d(TAG, "Crime:" + crime.toString());
             }
         });
 
         crimeReportButton = (Button) v.findViewById(R.id.crime_report);
         crimeReportButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_SEND);
-                i.setType("text/plain");
+                i.setType("text/plain"); // MIME Type
                 i.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
                 i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
 
@@ -161,12 +167,13 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+        //pickContact.addCategory(Intent.CATEGORY_HOME);
 
-        crimeSuspectButton = (Button) v.findViewById(R.id.choose_suspect);
+        crimeSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
         crimeSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 startActivityForResult(pickContact, REQUEST_CONTACT_SUSPECT);
             }
         });
@@ -174,57 +181,74 @@ public class CrimeFragment extends Fragment {
         if (crime.getSuspect() != null) {
             crimeSuspectButton.setText(crime.getSuspect());
         }
-        Intent intent = new Intent();
-        getActivity().setResult(Activity.RESULT_OK, intent);
+
+        PackageManager packageManager = getActivity().getPackageManager();
+        if (packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            crimeSuspectButton.setEnabled(false);
+        }
+
+        crimeCallSuspect = (Button) v.findViewById(R.id.crime_call_suspect);
+        crimeCallSuspect.setEnabled(crime.getSuspect() != null);
+        crimeCallSuspect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (hasCallPermission()) {
+                    callSuspect();
+                }
+            }
+        });
         return v;
     }
 
-    private String getFormattedTime(Date date) {
-        return new SimpleDateFormat("hh:mm:ss").format(date);
-    }
-
-
-    private String getFormattedDate(Date date) {
-        return new SimpleDateFormat("dd MMMM yyyy").format(date);
-    }
-
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) {
+    public void onActivityResult(int requestCode, int result, Intent data) {
+        if (result != Activity.RESULT_OK) {
             return;
         }
 
         if (requestCode == REQUEST_DATE) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 
+            // set
             crime.setCrimeDate(date);
-            crimeDateButton.setText(getFormattedDate(crime.getCrimeDate()));
+            crimeDateButton.setText(CrimeDateFormat.toShortDate(crime.getCrimeDate()));
         }
+
         if (requestCode == REQUEST_TIME) {
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
 
+            // set
             crime.setCrimeDate(date);
-            crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
+            crimeTimeButton.setText(CrimeDateFormat.toTime(getActivity(), crime.getCrimeDate()));
         }
 
         if (requestCode == REQUEST_CONTACT_SUSPECT) {
             if (data != null) {
                 Uri contactUri = data.getData();
-                String[] queryField = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+                String[] queryFields = new String[]{
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER};
 
                 Cursor c = getActivity()
                         .getContentResolver()
-                        .query(contactUri, queryField, null, null, null);
+                        .query(contactUri,
+                                queryFields,
+                                null,
+                                null,
+                                null);
+
                 try {
                     if (c.getCount() == 0) {
                         return;
                     }
 
                     c.moveToFirst();
-                    String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String suspect = c.getString(0);
+                    suspect = suspect + ":" + c.getString(1);
 
                     crime.setSuspect(suspect);
                     crimeSuspectButton.setText(suspect);
+                    crimeCallSuspect.setEnabled(suspect != null);
                 } finally {
                     c.close();
                 }
@@ -236,7 +260,83 @@ public class CrimeFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        CrimeLab.getInstance(getActivity()).updateCrime(crime);
+        CrimeLab.getInstance(getActivity()).updateCrime(crime); // update crime in db
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.crime_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_crime:
+                CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
+                getActivity().finish();
+                return true;
+            default:
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void callSuspect() {
+        Intent i = new Intent(Intent.ACTION_CALL);
+        StringTokenizer tokenizer = new StringTokenizer(crime.getSuspect(), ":");
+        String name = tokenizer.nextToken();
+        String phone = tokenizer.nextToken();
+        Log.d(TAG, "calling " + name + "/" + phone);
+        i.setData(Uri.parse("tel:" + phone));
+
+        startActivity(i);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // Granted permission
+                    callSuspect();
+
+                } else {
+
+                    // Denied permission
+                    Toast.makeText(getActivity(),
+                            R.string.denied_permission_to_call,
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+                return;
+            }
+        }
+    }
+
+    private boolean hasCallPermission() {
+
+        // Check if permission is not granted
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.CALL_PHONE
+                    },
+                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+            return false; // checking -- wait for dialog
+        }
+
+        return true; // already has permission
     }
 
     private String getCrimeReport() {
@@ -248,18 +348,19 @@ public class CrimeFragment extends Fragment {
             solvedString = getString(R.string.crime_report_unsolved);
         }
 
-        String dateFromat = "EEE, MMM dd";
-        String dateString = android.text.format.DateFormat.format(dateFromat, crime.getCrimeDate()).toString();
+        String dateFormat = "EEE, MMM dd";
+        String dateString = DateFormat.format(dateFormat,
+                crime.getCrimeDate()).toString();
 
         String suspect = crime.getSuspect();
 
         if (suspect == null) {
             suspect = getString(R.string.crime_report_no_suspect);
         } else {
-            suspect = getString(R.string.crime_report_with_suspect);
+            suspect = getString(R.string.crime_report_with_suspect, suspect);
         }
 
-        String report = getString(R.string.crime_new_report,
+        String report = getString(R.string.crime_report,
                 crime.getTitle(), dateString, solvedString, suspect);
 
         return report;

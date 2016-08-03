@@ -2,81 +2,72 @@ package com.augmentis.ayp.criminalintention;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.DatePicker;
+import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Timer;
 
 /**
- * Created by Chayanit on 7/28/2016.
+ * Created by Chayanit on 28-Jul-16.
  */
-public class TimePickerFragment extends DialogFragment implements DialogInterface.OnClickListener {
+public class TimePickerFragment extends DialogFragment
+        implements TimePickerDialog.OnTimeSetListener {
 
-    protected static final String EXTRA_TIME = "TimePickerFragment";
+    protected static final String EXTRA_TIME = "EXTRA_TIME";
+    protected static final String ARGUMENT_TIME = "ARG_TIME";
 
+    private Calendar _calendar;
+
+    // 1.
     public static TimePickerFragment newInstance(Date date) {
-        TimePickerFragment tf = new TimePickerFragment();
+        TimePickerFragment tp = new TimePickerFragment();
         Bundle args = new Bundle();
-        args.putSerializable("ARG_TIME", date);
-        tf.setArguments(args);
-        return tf;
+        args.putSerializable(ARGUMENT_TIME, date);
+        tp.setArguments(args);
+        return tp;
     }
 
-    TimePicker _timePicker;
-    private Date tempDate;
-
-    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        // Use the current time as the default values for the picker
+        // 3.
+        Date date = (Date) getArguments().getSerializable(ARGUMENT_TIME);
 
-        tempDate = (Date) getArguments().getSerializable("ARG_TIME");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(tempDate);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        _calendar = Calendar.getInstance();
+        _calendar.setTime(date);
 
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_time, null);
-        _timePicker = (TimePicker) v.findViewById(R.id.time_picker_in_dialog);
-        _timePicker.setMinute(minute);
-        _timePicker.setHour(hour);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        int hour = _calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = _calendar.get(Calendar.MINUTE);
 
-        builder.setView(v);
-        builder.setTitle(R.string.time_picker_title);
-        builder.setPositiveButton(android.R.string.ok, this);
-        return builder.create();
+        // Create a new instance of TimePickerDialog and return it
+        return new TimePickerDialog(getActivity(), this, hour, minute,
+                DateFormat.is24HourFormat(getActivity()));
     }
 
-    @Override
-    public void onClick(DialogInterface dialogInterface, int i) {
-        int minute = _timePicker.getMinute();
-        int hour = _timePicker.getHour();
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        // Do something with the time chosen by the user
 
-        Calendar c = Calendar.getInstance();
-        c.setTime(tempDate);
-        c.set(Calendar.HOUR_OF_DAY, hour);
-        c.set(Calendar.MINUTE, minute);
-        Date date = c.getTime();
+        _calendar.set(Calendar.HOUR, hourOfDay);
+        _calendar.set(Calendar.MINUTE, minute);
+
+        Date date = _calendar.getTime();
         sendResult(Activity.RESULT_OK, date);
     }
 
-    private void sendResult(int resultOk, Date date) {
+    private void sendResult(int resultCode, Date date) {
         if (getTargetFragment() == null) {
             return;
         }
+
         Intent intent = new Intent();
         intent.putExtra(EXTRA_TIME, date);
-        getTargetFragment().onActivityResult(getTargetRequestCode(), resultOk, intent);
+
+        getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
     }
+
 }
