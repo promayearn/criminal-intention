@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.util.Log;
 
 /**
  * Created by Chayanit on 8/4/2016.
  */
 public class PictureUtils {
+
+
+    private static final String TAG = "PictureUtils";
+
     public static Bitmap getScaledBitmap(String path, int destWidth, int destHeight) {
         // Read the dimension of the image
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -29,6 +34,7 @@ public class PictureUtils {
                 inSampleSize = Math.round(srcWidth / destWidth);
             }
         }
+        Log.d(TAG, "inSampleSize : " + inSampleSize);
 
         options = new BitmapFactory.Options();
         options.inSampleSize = inSampleSize;

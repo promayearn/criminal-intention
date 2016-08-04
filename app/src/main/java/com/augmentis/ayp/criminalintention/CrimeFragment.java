@@ -296,7 +296,7 @@ public class CrimeFragment extends Fragment {
             }
         }
 
-        if(requestCode == REQUEST_CAPTURE_PHOTO){
+        if (requestCode == REQUEST_CAPTURE_PHOTO) {
             updatePhotoView();
         }
     }
@@ -412,11 +412,11 @@ public class CrimeFragment extends Fragment {
     }
 
     private void updatePhotoView() {
-        if(photoFile == null || !photoFile.exists()) {
+        if (photoFile == null || !photoFile.exists()) {
             photoView.setImageDrawable(null);
         } else {
-            final Bitmap bitmap = PictureUtils.getScaledBitmap( photoFile.getPath(),
-                    getActivity() );
+            final Bitmap bitmap = PictureUtils.getScaledBitmap(photoFile.getPath(),
+                    getActivity());
 
             photoView.setImageBitmap(bitmap);
 

@@ -33,10 +33,11 @@ public class ImageFragment extends DialogFragment implements DialogInterface.OnC
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_image, null);
-        imageView= (ImageView) v.findViewById(R.id.crime_image_dialog);
+        imageView = (ImageView) v.findViewById(R.id.crime_image_dialog);
         imageView.setImageBitmap(_bitmap);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Image From Camera");
         builder.setView(v);
         builder.setPositiveButton(android.R.string.ok, this);
         return builder.create();

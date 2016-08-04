@@ -1,18 +1,22 @@
 package com.augmentis.ayp.criminalintention;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.augmentis.ayp.criminalintention.model.Crime;
 import com.augmentis.ayp.criminalintention.model.CrimeDateFormat;
 import com.augmentis.ayp.criminalintention.model.CrimeLab;
+import com.augmentis.ayp.criminalintention.model.PictureUtils;
 
+import java.io.File;
 import java.util.UUID;
 
 /**
@@ -25,6 +29,9 @@ public class CrimeListViewHolder extends RecyclerView.ViewHolder
     public TextView _titleTextView;
     public TextView _dateTextView;
     public CheckBox _solvedCheckBox;
+    public ImageView _imageCrime;
+
+    private File photoFile;
 
     UUID _crimeId;
     int _position;
@@ -44,16 +51,31 @@ public class CrimeListViewHolder extends RecyclerView.ViewHolder
         _dateTextView = (TextView)
                 itemView.findViewById(R.id.list_item_crime_date_text_view);
 
+        _imageCrime = (ImageView)
+                itemView.findViewById(R.id.list_item_crime_image_view);
+
         _solvedCheckBox.setOnCheckedChangeListener(this);
+
         itemView.setOnClickListener(this);
     }
 
     public void bind(Crime crime) {
         _crimeId = crime.getId();
 
+        photoFile = CrimeLab.getInstance(_f.getActivity()).getPhotoFile(crime);
+
         _titleTextView.setText(crime.getTitle());
         _dateTextView.setText(CrimeDateFormat.toFullDate(_f.getActivity(), crime.getCrimeDate()));
         _solvedCheckBox.setChecked(crime.isSolved());
+
+        if (photoFile == null || !photoFile.exists()) {
+            _imageCrime.setImageDrawable(null);
+        } else {
+            final Bitmap bitmap = PictureUtils.getScaledBitmap(photoFile.getPath(),
+                    _f.getActivity());
+
+            _imageCrime.setImageBitmap(bitmap);
+        }
     }
 
     @Override
