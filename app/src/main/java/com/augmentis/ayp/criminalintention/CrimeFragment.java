@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 import com.augmentis.ayp.criminalintention.model.Crime;
 import com.augmentis.ayp.criminalintention.model.CrimeDateFormat;
 import com.augmentis.ayp.criminalintention.model.CrimeLab;
+import com.augmentis.ayp.criminalintention.model.PictureUtils;
 
 import java.io.File;
 import java.util.Date;
@@ -48,13 +50,15 @@ public class CrimeFragment extends Fragment {
     private static final String CRIME_ID = "CrimeFragment.CRIME_ID";
 
     private static final String DIALOG_DATE = "CrimeFragment.DIALOG_DATE";
-    private static final String DIALOG_TIME = "CrimeFragment.DIALOG_DATE";
+    private static final String DIALOG_TIME = "CrimeFragment.DIALOG_TIME";
+    private static final String DIALOG_IMAGE = "CrimeFragment.DIALOG_IMAGE";
 
     private static final int REQUEST_DATE = 2222;
     private static final int REQUEST_TIME = 2221;
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 28197;
     private static final int REQUEST_CONTACT_SUSPECT = 29900;
     private static final int REQUEST_CAPTURE_PHOTO = 23340;
+    private static final int REQUEST_IMAGE = 2223;
 
     private static final String TAG = "CrimeFragment";
 
@@ -230,6 +234,10 @@ public class CrimeFragment extends Fragment {
                 startActivityForResult(captureImageIntent, REQUEST_CAPTURE_PHOTO);
             }
         });
+
+//        update photo changing
+        updatePhotoView();
+
         return v;
     }
 
@@ -286,6 +294,10 @@ public class CrimeFragment extends Fragment {
                     c.close();
                 }
             }
+        }
+
+        if(requestCode == REQUEST_CAPTURE_PHOTO){
+            updatePhotoView();
         }
     }
 
@@ -397,5 +409,28 @@ public class CrimeFragment extends Fragment {
                 crime.getTitle(), dateString, solvedString, suspect);
 
         return report;
+    }
+
+    private void updatePhotoView() {
+        if(photoFile == null || !photoFile.exists()) {
+            photoView.setImageDrawable(null);
+        } else {
+            final Bitmap bitmap = PictureUtils.getScaledBitmap( photoFile.getPath(),
+                    getActivity() );
+
+            photoView.setImageBitmap(bitmap);
+
+            photoView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    FragmentManager fm = getFragmentManager();
+                    ImageFragment dialogFragment = new
+                            ImageFragment(bitmap);
+                    dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_IMAGE);
+                    dialogFragment.show(fm, DIALOG_IMAGE);
+                }
+            });
+        }
     }
 }
