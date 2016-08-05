@@ -1,7 +1,6 @@
 package com.augmentis.ayp.criminalintention;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -181,10 +180,10 @@ public class CrimeListFragment extends Fragment {
             _zeroItemView.setVisibility(View.INVISIBLE);
         }
     }
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        Log.d(TAG, "Resume list");
-//        updateUI();
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "Resume list");
+        updateUI();
+    }
 }

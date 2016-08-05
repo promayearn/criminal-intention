@@ -324,12 +324,12 @@ public class CrimeFragment extends Fragment {
         }
     }
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//
-//        updateCrime();
-//    }
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        updateCrime();
+    }
 
     public void updateCrime() {
 
@@ -351,6 +351,9 @@ public class CrimeFragment extends Fragment {
             case R.id.menu_item_delete_crime:
                 CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
                 updateCrime();
+                if (CrimeFragment.this.isResumed()) {
+                    callbacks.onCrimeUpdated(crime);
+                }
                 return true;
             default:
 
