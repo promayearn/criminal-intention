@@ -1,6 +1,5 @@
 package com.augmentis.ayp.criminalintention;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -11,8 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-
-import java.util.Date;
 
 /**
  * Created by Chayanit on 8/4/2016.

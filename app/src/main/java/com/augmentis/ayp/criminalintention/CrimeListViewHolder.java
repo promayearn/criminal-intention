@@ -1,6 +1,5 @@
 package com.augmentis.ayp.criminalintention;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -32,11 +31,14 @@ public class CrimeListViewHolder extends RecyclerView.ViewHolder
     public ImageView _imageCrime;
 
     private File photoFile;
+    private Crime _crime;
 
     UUID _crimeId;
     int _position;
 
     Fragment _f;
+
+    private CrimeListFragment.Callbacks callbacks;
 
     public CrimeListViewHolder(Fragment f, View itemView) {
         super(itemView);
@@ -54,19 +56,29 @@ public class CrimeListViewHolder extends RecyclerView.ViewHolder
         _imageCrime = (ImageView)
                 itemView.findViewById(R.id.list_item_crime_image_view);
 
-        _solvedCheckBox.setOnCheckedChangeListener(this);
+        _solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                _crime.setSolved(b);
+                CrimeLab.getInstance(_f.getActivity()).updateCrime(_crime);
+                ((CrimeListActivity) _f.getActivity()).onCrimeSelected(_crime);
+            }
+        });
 
         itemView.setOnClickListener(this);
     }
 
     public void bind(Crime crime) {
         _crimeId = crime.getId();
+        _crime = crime;
 
         photoFile = CrimeLab.getInstance(_f.getActivity()).getPhotoFile(crime);
 
         _titleTextView.setText(crime.getTitle());
         _dateTextView.setText(CrimeDateFormat.toFullDate(_f.getActivity(), crime.getCrimeDate()));
         _solvedCheckBox.setChecked(crime.isSolved());
+        _crime.setSolved(crime.isSolved());
+
 
         if (photoFile == null || !photoFile.exists()) {
             _imageCrime.setImageDrawable(null);
@@ -81,8 +93,8 @@ public class CrimeListViewHolder extends RecyclerView.ViewHolder
     @Override
     public void onClick(View v) {
         Log.d(TAG, "send position : " + _position);
-        Intent intent = CrimePagerActivity.newIntent(_f.getActivity(), _crimeId);
-        _f.startActivity(intent);
+        callbacks = (CrimeListFragment.Callbacks) _f.getActivity();
+        callbacks.onCrimeSelected(_crime);
     }
 
     @Override

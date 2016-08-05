@@ -4,11 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
+import com.augmentis.ayp.criminalintention.model.Crime;
+
 import java.util.UUID;
 
-public class CrimePagerActivity extends SingleFragmentActivity {
+public class CrimePagerActivity extends SingleFragmentActivity implements CrimeFragment.Callbacks {
 
     private UUID _crimeId;
+
+    @Override
+    protected int getLayoutResId() {
+
+        return R.layout.activity_masterdetail;
+    }
 
     @Override
     protected Fragment onCreateFragment() {
@@ -22,5 +30,10 @@ public class CrimePagerActivity extends SingleFragmentActivity {
         Intent intent = new Intent(activity, CrimePagerActivity.class);
         intent.putExtra(CRIME_ID, id);
         return intent;
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+//        TODO I will see what I can do here.
     }
 }

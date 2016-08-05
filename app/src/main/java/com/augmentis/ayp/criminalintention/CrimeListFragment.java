@@ -1,5 +1,6 @@
 package com.augmentis.ayp.criminalintention;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,6 +35,25 @@ public class CrimeListFragment extends Fragment {
 
     private CrimeListAdapter _adapter;
     private boolean _subtitleVisible;
+    private Callbacks callbacks;
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        callbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        callbacks = null;
+    }
 
     @Nullable
     @Override
@@ -61,8 +81,11 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
+
+        if (CrimeLab.getInstance(getActivity()).getCrimes().size() != 0) {
+            callbacks.onCrimeSelected(CrimeLab.getInstance(getActivity()).getCrimes().get(0));
+        }
     }
 
     @Override
@@ -90,8 +113,9 @@ public class CrimeListFragment extends Fragment {
 
                 Crime crime = new Crime();
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+
+                updateUI();
+                callbacks.onCrimeSelected(crime);
                 return true;
 
             case R.id.menu_item_show_subtitle:
@@ -132,7 +156,7 @@ public class CrimeListFragment extends Fragment {
     /**
      * Update UI
      */
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -157,13 +181,10 @@ public class CrimeListFragment extends Fragment {
             _zeroItemView.setVisibility(View.INVISIBLE);
         }
     }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "Resume list");
-        updateUI();
-    }
-
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Log.d(TAG, "Resume list");
+//        updateUI();
+//    }
 }
